@@ -1,9 +1,6 @@
 INSERT INTO persons (first_name, second_name, last_name, sex, birth_date) VALUES
 	('Николай', 'Юрьевич', 'Додонов', 'MASCULINE', '1955-01-17'),
-	('Антон', 'Сергеевич', 'Ковалёв', 'MASCULINE', '1984-10-04'),
 	('Георгий', 'Александрович', 'Корнеев', 'MASCULINE', '1981-02-23'),
-	('Константин', 'Петрович', 'Кохась', 'MASCULINE', '1966-02-14'),
-	('Павел', 'Юрьевич', 'Маврин', 'MASCULINE', '1984-11-26'),
 	('Андрей', 'Сергеевич', 'Станкевич', 'MASCULINE', '1982-10-02'),
 	('Андрей', 'Юрьевич', 'Васин', 'MASCULINE', '1993-07-22'),
 	('Алина', 'Димитрова', 'Димитрова', 'FEMININE', '1993-01-21'),
@@ -13,42 +10,58 @@ INSERT INTO persons (first_name, second_name, last_name, sex, birth_date) VALUES
 ;
 
 INSERT INTO groups (group_number) VALUES
-	('4528'),
 	('4538'),
 	('4539')
 ;
 
-INSERT INTO professors (person_id)
-	SELECT person_id FROM persons
-		WHERE birth_date < '1991-01-01'
+INSERT INTO students (person_id, group_id) VALUES
+	(4, 1),
+	(5, 1),
+	(6, 1),
+	(7, 2),
+	(8, 2)
 ;
 
-INSERT INTO students (person_id)
-	SELECT person_id FROM persons
-		WHERE birth_date >= '1991-01-01'
+INSERT INTO professors (person_id) VALUES
+	(1),
+	(2),
+	(3)
 ;
 
-INSERT INTO subjects (subject_name, term_number, type) VALUES
-	('Математический анализ', 1, 'GRADE'),
-	('Математический анализ', 2, 'GRADE'),
-	('Математический анализ', 3, 'GRADE'),
-	('Математический анализ', 4, 'GRADE'),
-	('Математический анализ', 5, 'GRADE'),
-	('Математический анализ', 6, 'GRADE'),
-	('Технологии программирования', 2, 'GRADE'),
-	('Практикум на ЭВМ', 3, 'CREDIT'),
-	('Практикум на ЭВМ', 4, 'CREDIT'),
-	('Java-технологии', 4, 'CREDIT'),
-	('Базы данных и экспертные системы', 7, 'GRADE'),
-	('Дискретная математика', 1, 'GRADE'),
-	('Дискретная математика', 2, 'GRADE'),
-	('Алгоритмы и структуры данных', 3, 'GRADE'),
-	('Алгоритмы и структуры данных', 4, 'GRADE'),
-	('Языки программирования и методы трансляции', 5, 'GRADE'),
-	('Языки программирования и методы трансляции', 6, 'CREDIT'),
-	('Теория вычислительной сложности', 6, 'CREDIT')
+INSERT INTO subjects (subject_name) VALUES
+	('Математический анализ'),
+	('Java-технологии'),
+	('Базы данных и экспертные системы'),
+	('Дискретная математика'),
+	('Алгоритмы и структуры данных'),
+	('Языки программирования и методы трансляции'),
+	('Теория вычислительной сложности')
 ;
 
-INSERT INTO marks (student_id, subject_id, points, credit_date) VALUES
-	(1, 1, 100, now())
+INSERT INTO courses (professor_id, subject_id, term_number, type) VALUES
+	(1, 1, 1, 'GRADE'),
+	(1, 1, 2, 'GRADE'),
+	(1, 1, 3, 'GRADE'),
+	(1, 1, 4, 'GRADE'),
+	(1, 1, 5, 'GRADE'),
+	(1, 1, 6, 'GRADE'),
+	(2, 2, 4, 'CREDIT'),
+	(2, 3, 7, 'GRADE'),
+	(3, 4, 1, 'GRADE'),
+	(3, 4, 2, 'GRADE'),
+	(3, 5, 3, 'GRADE'),
+	(3, 5, 4, 'GRADE'),
+	(3, 6, 5, 'GRADE'),
+	(3, 6, 6, 'CREDIT'),
+	(3, 7, 6, 'CREDIT')
+;
+
+INSERT INTO group_courses (group_id, course_id)
+	SELECT 1, course_id FROM courses
+	UNION
+	SELECT 2, course_id FROM courses
+;
+
+INSERT INTO marks (student_id, group_course_id, points, credit_date)
+	SELECT 4, group_course_id, 100, now() FROM group_courses where group_id = 2;
 ;
