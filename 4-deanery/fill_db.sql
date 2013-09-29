@@ -3,7 +3,7 @@ INSERT INTO students (student_name) VALUES
 	('Козлов'),
 	('Шагал'),
 	('Васильев'),
-	('Лытаев')
+	('Дешевой')
 ;
 
 INSERT INTO groups (group_name) VALUES
@@ -37,4 +37,17 @@ INSERT INTO student_group_list (student_id, group_id) VALUES
 	(3, 1),
 	(4, 2),
 	(5, 2)
+;
+
+INSERT INTO student_course_mark_list (student_id, course_id, mark) VALUES
+	(1, 1, 'D'),
+	(1, 2, 'E'),
+	(2, 1, 'D'),
+	(2, 2, 'C'),
+	(3, 1, 'D'),
+	(3, 2, 'E'),
+	(4, 1, 'A'),
+	(4, 2, 'A'),
+	(5, 1, 'E'),
+	(5, 2, 'E')
 ;
