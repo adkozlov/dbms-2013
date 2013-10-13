@@ -1,0 +1,243 @@
+\documentclass[10pt, a4paper]{article}
+
+\usepackage{mathtext}
+\usepackage[T1,T2A]{fontenc}
+\DeclareSymbolFont{T2Aletters}{T2A}{cmr}{m}{it} 
+\usepackage[utf8]{inputenc}
+\usepackage[english,russian]{babel}
+\usepackage{graphicx,amsmath,color,listings}
+\usepackage[margin=1in]{geometry}
+
+\title{}
+\author{Андрей Козлов, гр. 4538}
+\date{}
+
+\lstnewenvironment{sql}
+{\lstset{
+	language=SQL,
+	frame=single,
+	escapeinside={\%*}{*)}
+}}
+{}
+\lstnewenvironment{prolog}
+{\lstset{
+	language=Prolog,
+	frame=single,
+	escapeinside={\%*}{*)}
+}}
+{}
+
+\begin{document}
+\maketitle
+
+Пусть:
+\begin{itemize}
+	\item S :: students
+	\item G :: groups
+	\item L :: lecturers
+	\item C :: courses
+	\item M :: marks
+	\item GL :: grouplists
+	\item SCH :: schedule
+\end{itemize}
+
+\begin{enumerate}
+
+	\item {Информация о студентах с заданной оценкой по предмету «Базы данных».\\
+	Пусть $X$ -- заданная оценка, тогда:\\
+	$select \; S \; where \; \exists C (\exists M (S_{student\_id} = M_{student\_id} \wedge C_{course\_id} = M_{course\_id} \wedge C_{course\_name} = 'Базы \; данных' \wedge M_{mark} = X))$
+
+	\begin{prolog}
+E1(student_id, student_name) :- S(student_id, student_name),
+	C(course_id, course_name), M(student_id, course_id, mark),
+	course_name = '%*Базы данных*)', mark = X
+	\end{prolog}
+
+	\begin{sql}
+SELECT students_id, student_name
+FROM students, courses, marks
+WHERE students.student_id = marks.student_id AND
+	courses.course_id = marks.course_id AND
+	course_name = '%*Базы данных*)' AND mark = X;
+	\end{sql}
+	}
+
+
+	\item {Информация о студентах не имеющих оценки по предмету «Базы данных».
+		\begin{itemize}
+
+			\item {среди всех студентов\\
+			$select \; S \; where \; \neg \exists M (\exists C (S_{student\_id} = M_{student\_id} \wedge C_{course\_name} = 'Базы \; данных' \wedge C_{course\_id} = M_{course\_id}))$
+
+			\begin{prolog}
+E2A(student_id, student_name) :- S(student_id, student_name),
+	not M(student_id, course_id, _), C(course_id, course_name),
+	course_name = '%*Базы данных*)'
+			\end{prolog}
+
+			\begin{sql}
+SELECT * FROM students
+WHERE NOT EXISTS
+SELECT student_id, student_name FROM students, courses, marks
+WHERE students.student_id = marks.student_id AND
+	courses.course_id = marks.course_id AND
+	course_name = '%*Базы данных*)';
+			\end{sql}
+			}
+
+			\item {среди студентов, у которых есть этот предмет\\
+			$select \; S \; where \; (\\
+\exists GL (\exists C (\exists SCH (S_{student\_id} = GL_{student\_id} \wedge GL_{group\_id} = SCH_{group\_id} \wedge SCH_{course\_id} = C_{course\_id} \wedge C_{course\_name = 'Базы данных'})))\\
+and\\
+\neg \exists M (\exists C (S_{student\_id} = M_{student\_id} \wedge C_{course\_name} = 'Базы \; данных' \wedge C_{course\_id} = M_{course\_id})))$
+
+			\begin{prolog}
+E2B(student_id, student_name) :- S(student_id, student_name),
+	not M(student_id, course_id, _), C(course_id, course_name),
+	GL(student_id, group_id), SCH(course_id, group_id, _),
+	course_name = '%*Базы данных*)'
+			\end{prolog}
+
+			\begin{sql}
+SELECT * FROM students
+WHERE EXISTS
+SELECT student_id, student_name
+	FROM students, grouplists, courses, schedule
+	WHERE students.student_id = grouplists.student_id AND
+		grouplists.group_id = schedule.group_id AND
+		schedule.course_id = courses.course_id AND
+		course_name = '%*Базы данных*)'
+AND NOT EXISTS
+SELECT student_id, student_name
+	FROM students, courses, marks
+	WHERE students.student_id = marks.student_id AND
+		courses.course_id = marks.course_id AND
+		course_name = '%*Базы данных*)';
+			\end{sql}
+			}
+
+		\end{itemize}
+	}
+
+	\item {Информация о студентах, имеющих хотя бы одну оценку у заданного лектора.\\
+	Пусть $X$ -- идентификатор заданного лектора, тогда:\\
+	$select \; S \; where \; \exists M (\exists GL (\exists SCH(S_{student\_id} = M_{student\_id} \wedge S_{student\_id} = GL_{student\_id} \wedge GL_{group\_id} = SCH_{group\_id} \wedge C_{course\_id} = M_{cours\_id} \wedge SCH_{lecturer\_id} = X)))$
+
+	\begin{prolog}
+E3(student_id, student_name) :- S(student_id, student_name),
+	M(student_id, course_id, _), GL(student_id, group_id),
+	SCH(course_id, group_id, lecturer_id), lecturer_id = X
+	\end{prolog}
+
+	\begin{sql}
+SELECT * FROM students
+WHERE EXISTS
+SELECT student_id, student_name
+	FROM students, marks, grouplists, schedule
+	WHERE student.student_id = marks.student_id AND
+		students.student_id = grouplists.student_id AND
+		grouplists.group_id = schedule.group_id AND
+		schedule.course_id = marks.course_id AND
+		schedule.lecturer_id = X;
+	\end{sql}
+	}
+
+	\item {Идентификаторы студентов, не имеющих ни одной оценки у заданного лектора.\\
+	Пусть $X$ -- идентификатор заданного лектора, тогда:\\
+	$select \; S_{student\_id} \; where \; \neg \exists M (\exists GL (\exists SCH (S_{student\_id} = M_{student\_id} \wedge S_{student\_id} = GL_{student\_id} \wedge GL_{group\_id} = SCH_{group\_id} \wedge M_{course\_id} = SCH_{course\_id} \wedge SCH_{lecturer\_id = X})))$
+
+	\begin{prolog}
+E4(student_id) :- S(student_id, _), not M(student_id, course_id, _),
+	GL(student_id, group_id), SCH(course_id, group_id, lecturer_id),
+	lecturer_id = X
+	\end{prolog}
+
+	\begin{sql}
+SELECT student_id FROM students
+WHERE NOT EXISTS
+SELECT students.student_id
+	FROM students, marks, grouplists, schedule
+	WHERE students.student_id = marks.student_id AND
+		students.student_id = grouplists.student_id AND
+		grouplists.group_id = schedule.group_id AND
+		schedule.course_id = marks.course_id AND
+		schedule.lecturer_id = X;
+	\end{sql}
+	}
+
+	\item {Всех студентов, имеющих оценки по всем предметам заданного лектора.\\
+	Пусть $X$ -- идентификатор заданного лектора, тогда:\\
+	$select \; S \; where \; \exists GL (\exists M (\forall SCH (S_{student\_id} = M_{student\_id} \wedge S_{student\_id} = GL_{student\_id} \wedge GL_{group\_id} = SCH_{group\_id} \wedge SCH_{course\_id} = M_{course\_id} \wedge SCH_{lecturer\_id} = X)))$
+
+	\begin{prolog}
+Losers(student_id, student_name) :- S(student_id, student_name),
+	M(student_id, course_id, _), GL(student_id, group_id),
+	SCH(course_id, group_id, lecturer_id), lecturer_id = X
+
+E5(student_id, student_name) :- S(student_id, student_name),
+	not Losers(student_id, student_name)
+	\end{prolog}
+	}
+
+	\item {Для каждого студента имя и курсы, которые он должен посещать.\\
+	$select \; S_{student\_name}, C_{course\_name} \; where \; \exists GL (\exists SCH (S_{student\_name} = GL_{student\_name} \wedge GL_{group\_id} = SCH_{group\_id} \wedge SCH_{course\_id} = C_{course\_id}))$
+
+	\begin{prolog}
+E6(student_name, course_name) :- S(student_id, student_name),
+	C(course_id, course_name), GL(student_id, group_id),
+	SCH(course_id, group_id, _)
+	\end{prolog}
+
+	\begin{sql}
+SELECT student_name, course_name
+FROM students, marks, grouplists, schedule
+WHERE students.student_id = grouplists.student_id AND
+	grouplists.group_id = schedule.group_id AND
+	schedule.course_id = courses.course_id;
+	\end{sql}
+	}
+
+	\item {По лектору всех студентов, у которых он хоть что-нибудь преподавал.\\
+	Пусть $X$ -- идентификатор заданного лектора, тогда:\\
+	$select \; S_{student\_name} \; where \; \exists GL (\exists SCH (S_{student\_id} = GL_{student\_id} \wedge GL_{group\_id} = SCH_{group\_id} \wedge SCH_{lecturer\_id} = X))$
+
+	\begin{prolog}
+E7(student_name) :- S(student_id, student_name),
+	GL(student_id, group_id), SCH(_, group_id, lecturer_id),
+	lecturer_id = X
+	\end{prolog}
+
+	\begin{sql}
+SELECT student_name
+FROM students, grouplists, schedule
+WHERE students.student_id = grouplists.student_id AND
+	grouplists.group_id = schedule.group_id AND
+	schedule.lecturer_id = X;
+	\end{sql}
+	}
+
+	\item {Пары студентов, такие, что все сданные первым студентом предметы сдал и второй студент.\\
+	$select \; S \; as \; S1, S \; as \; S2 \; where \; \forall M \; as \; M1 (\exists M \; as \; M2 (S1_{student\_id} <> S2{student\_id} \wedge M1_{course\_id} = M2_{course\_id} \wedge S1_{student\_id} = M1_{student\_id} \wedge S2_{student\_id} = M2_{student\_id}))$
+
+	\begin{prolog}
+E8(student_id1, student_name1, student_id2, student_name2) :- S(student_id1, student_name1), S(student_id2, student_name2),
+	M(student_id1, course_id1, _), M(student_id2, course_id2, _),
+	student_id1 <> student_id2
+	\end{prolog}
+
+	\begin{sql}
+SELECT * FROM students AS s1, students AS s2
+WHERE s1.student_id <> s2.student_id AND
+	NOT EXISTS
+	SELECT * FROM marks AS m1
+	WHERE s1.student_id = m1.student_id AND
+		NOT EXISTS
+		SELECT * FROM marks AS m2
+		WHERE s2.student_id = m2.student_id AND
+			m1.course_id = m2.course_id;
+	\end{sql}
+	}
+
+\end{enumerate}
+
+\end{document}
