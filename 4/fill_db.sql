@@ -3,7 +3,8 @@ INSERT INTO students (student_name) VALUES
 	('Козлов'),
 	('Шагал'),
 	('Васильев'),
-	('Дешевой')
+	('Дешевой'),
+	('Шаповалов')
 ;
 
 INSERT INTO groups (group_name) VALUES
@@ -22,7 +23,7 @@ INSERT INTO lecturers (lecturer_name) VALUES
 	('Станкевич')
 ;
 
-INSERT INTO group_course_lecturer_list (group_id, course_id, lecturer_id) VALUES
+INSERT INTO schedule (group_id, course_id, lecturer_id) VALUES
 	(1, 1, 1),
 	(2, 1, 1),
 	(1, 2, 2),
@@ -31,23 +32,28 @@ INSERT INTO group_course_lecturer_list (group_id, course_id, lecturer_id) VALUES
 	(2, 3, 2)
 ;
 
-INSERT INTO student_group_list (student_id, group_id) VALUES
+INSERT INTO grouplists (student_id, group_id) VALUES
 	(1, 1),
 	(2, 1),
 	(3, 1),
 	(4, 2),
-	(5, 2)
+	(5, 2),
+	(6, 2)
 ;
 
-INSERT INTO student_course_mark_list (student_id, course_id, mark) VALUES
-	(1, 1, 'D'),
-	(1, 2, 'E'),
-	(2, 1, 'D'),
-	(2, 2, 'C'),
-	(3, 1, 'D'),
-	(3, 2, 'E'),
-	(4, 1, 'A'),
-	(4, 2, 'A'),
-	(5, 1, 'E'),
-	(5, 2, 'E')
+INSERT INTO marks (student_id, course_id, points) VALUES
+	(1, 1, 68),
+	(1, 2, 60),
+	(2, 1, 68),
+	(2, 2, 75),
+	(3, 1, 68),
+	(3, 2, 60),
+	(4, 1, 100),
+	(4, 2, 101),
+	(5, 1, 0),
+	(5, 2, 0),
+	(5, 3, 0),
+	(6, 1, 0),
+	(6, 2, 0),
+	(6, 3, 0)
 ;
