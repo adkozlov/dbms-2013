@@ -8,7 +8,7 @@
 \usepackage{graphicx,amsmath,color,listings}
 \usepackage[margin=1in]{geometry}
 
-\title{}
+\title{Домашнее задание №7}
 \author{Андрей Козлов, гр. 4538}
 \date{}
 
@@ -23,15 +23,15 @@
 \begin{document}
 \maketitle
 
-Пусть:
+Пусть используются таблицы со следующими именами:
 \begin{itemize}
-	\item S :: students
-	\item G :: groups
-	\item L :: lecturers
-	\item C :: courses
-	\item M :: marks
-	\item GL :: grouplists
-	\item SCH :: schedule
+	\item students
+	\item groups
+	\item lecturers
+	\item courses
+	\item marks
+	\item grouplists
+	\item schedule
 \end{itemize}
 
 \begin{enumerate}
@@ -61,7 +61,7 @@ DELETE FROM groups WHERE group_id NOT IN
 	\end{sql}
 	}
 
-	\item {Создайте view Losers в котором для каждого студента, имеющего долги указано их количество.
+	\item {Создайте view \textsf{Losers} в котором для каждого студента, имеющего долги указано их количество.
 
 	\begin{sql}
 CREATE VIEW Losers AS SELECT student_name, count(*) FROM
@@ -70,15 +70,35 @@ CREATE VIEW Losers AS SELECT student_name, count(*) FROM
 	\end{sql}
 	}
 
-	\item {Создайте таблицу LoserT, в которой содержится та же информация, что во view Losers. Эта таблица должна автоматически обновляться при изменении таблицы с баллами.
+	\item {Создайте таблицу \textsf{LoserT}, в которой содержится та же информация, что во view \textsf{Losers}. Эта таблица должна автоматически обновляться при изменении таблицы с баллами.
+
+	\begin{sql}
+CREATE MATERIALIZED VIEW LosersT AS
+	(SELECT student_name, count(*) FROM
+	marks NATURAL JOIN students NATURAL JOIN grouplists
+		WHERE points < 60 GROUP BY student_name);
+
+CREATE FUNCTION refresh_loserst() RETURNS trigger AS $refresh_loserst$ 
+BEGIN
+	REFRESH MATERIALIZED VIEW LosersT;
+	RETURN NEW;
+END; 
+$refresh_loserst$ LANGUAGE plpgsql;
+
+CREATE TRIGGER refresh_loserst AFTER UPDATE ON marks
+	EXECUTE PROCEDURE refresh_loserst();
+	\end{sql}
+	}
+
+	\item {Отключите автоматическое обновление таблицы \textsf{LoserT}.
+
+	\begin{sql}
+DROP FUNCTION IF EXISTS refresh_loserst() CASCADE;
+	\end{sql}
 
 	}
 
-	\item {Отключите автоматическое обновление таблицы LoserT.
-
-	}
-
-	\item {Напишите запрос (один), которой обновляет таблицу LoserT, используя данные из таблицы NewPoints, в которой содержится информация о баллах, проставленных за последний день.
+	\item {Напишите запрос (один), которой обновляет таблицу \textsf{LoserT}, используя данные из таблицы \textsf{NewPoints}, в которой содержится информация о баллах, проставленных за последний день.
 
 	}
 
