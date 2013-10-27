@@ -95,15 +95,22 @@ CREATE TRIGGER refresh_loserst AFTER UPDATE ON marks
 	\begin{sql}
 DROP FUNCTION IF EXISTS refresh_loserst() CASCADE;
 	\end{sql}
-
 	}
 
 	\item {Напишите запрос (один), которой обновляет таблицу \textsf{LoserT}, используя данные из таблицы \textsf{NewPoints}, в которой содержится информация о баллах, проставленных за последний день.
 
+\begin{sql}
+UPDATE marks SET points = NewPoints.points
+	WHERE marks.student_id = NewPoints.student_id
+	AND marks.course_id = NewPoints.course_id;
+\end{sql}
 	}
 
 	\item {Добавьте проверку того, что все студенты одной группы изучают один и тот же набор курсов.
 
+\begin{sql}
+
+\end{sql}
 	}
 
 	\item {Создайте триггер, не позволяющий уменьшить баллы студента по предмету. При попытке такого изменения, баллы изменяться не должны.
