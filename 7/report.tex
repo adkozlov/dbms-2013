@@ -16,7 +16,8 @@
 {\lstset{
 	language=SQL,
 	frame=single,
-	escapeinside={\%*}{*)}
+	escapeinside={\%*}{*)},
+	showstringspaces=false
 }}
 {}
 
@@ -109,7 +110,22 @@ UPDATE marks SET points = NewPoints.points
 	\item {Добавьте проверку того, что все студенты одной группы изучают один и тот же набор курсов.
 
 \begin{sql}
+CREATE FUNCTION check_course() RETURNS trigger AS $check_course$ 
+BEGIN
+	IF EXISTS (SELECT group_id FROM grouplists
+		WHERE student_id = NEW.student_id
+		AND group_id NOT IN
+			(SELECT group_id FROM schedule
+				WHERE course_id = NEW.course_id)) THEN	
+		RAISE EXCEPTION 'student % cannot have
+		a mark for % course', NEW.student_id, NEW.course_id;
+	END IF;
+	RETURN NEW;
+END; 
+$check_course$ LANGUAGE plpgsql;
 
+CREATE TRIGGER check_courses BEFORE INSERT OR UPDATE ON marks
+	FOR EACH ROW EXECUTE PROCEDURE check_course();
 \end{sql}
 	}
 
