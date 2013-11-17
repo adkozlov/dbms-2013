@@ -1,0 +1,58 @@
+\documentclass[10pt, a4paper]{article}
+
+\usepackage{mathtext}
+\usepackage[T1,T2A]{fontenc}
+\DeclareSymbolFont{T2Aletters}{T2A}{cmr}{m}{it} 
+\usepackage[utf8]{inputenc}
+\usepackage[english,russian]{babel}
+\usepackage{graphicx,amsmath,color,listings}
+\usepackage[margin=1in]{geometry}
+
+\title{Домашнее задание №8}
+\author{Андрей Козлов, гр. 4538}
+\date{}
+
+\lstnewenvironment{sql}
+{\lstset{
+	language=SQL,
+	frame=single,
+	escapeinside={\%*}{*)},
+	showstringspaces=false
+}}
+{}
+
+\begin{document}
+\maketitle
+
+Пусть используются таблицы со следующими именами:
+\begin{itemize}
+	\item students,
+	\item groups,
+	\item lecturers,
+	\item courses,
+	\item marks,
+	\item grouplists,
+	\item schedule.
+\end{itemize}
+
+\begin{enumerate}
+	\item Определите, какие индексы требуется добавить к таблицам базы данных «Деканат».\\\\
+Так как достаточно часто будут использоваться запросы человека по имени или курса по названию, нужно добавить индексирование по строковым полям. При этом имя курса является уникальным, в отличие от имен студентов и преподавателей.
+Также нужно проиндексировать оценки студентов по курсам.
+
+	\item Пусть частым запросом является определение среднего балла студентов группы по курсу. Какие индексы могут помочь при исполнении данного запроса?\\\\
+В таком случае частыми запросами будут поиск всех студентов группы, оценки студента по курсу и групп по курсу. При этом оценка студента по курсу является уникальной.
+
+	\item Запишите добавление индексов на языке SQL.
+	\begin{sql}
+CREATE INDEX student ON students(student_name);
+CREATE INDEX lecturer ON lecturers(lecturer_name);
+CREATE UNIQUE INDEX course ON courses(course_name);
+
+CREATE INDEX group_students ON grouplists(group_id);
+CREATE UNIQUE INDEX student_course_mark ON marks(student_id, course_id);
+CREATE INDEX listeners_of_course ON schedule(course_id);
+	\end{sql}
+\end{enumerate}
+
+\end{document}
