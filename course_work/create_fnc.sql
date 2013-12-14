@@ -29,13 +29,13 @@ drop function if exists open_contract_now (int, int, int) cascade;
 create function open_contract_now (employee_id_ int, number_id_ int, tariff_id_ int) returns int as $$
     begin
         set transaction isolation level serializable read write;
-        insert into contracts (employee_id, number_id, tariff_id, start_time) values (employee_id_, number_id_, tariff_id_, now());
+        insert into contracts (employee_id, number_id, tariff_id, start_time) values (employee_id_, number_id_, tariff_id_, now ());
         return currval('contracts_contract_id_seq');
     end;
 $$ language plpgsql;
 
-drop function if exists check_contract_is_open() cascade;
-create function check_contract_is_open() returns trigger as $$
+drop function if exists check_contract_is_open () cascade;
+create function check_contract_is_open () returns trigger as $$
     begin
         if exists (select * from contracts where employee_id = new.employee_id and number_id = new.number_id and finish_time is null) then
             raise exception 'contract of employee % on number % is already open', new.employee_id, new.number_id;
@@ -46,7 +46,7 @@ $$ language plpgsql;
 
 drop trigger if exists check_contract_is_open on contracts cascade;
 create trigger check_contract_is_open before insert on contracts
-    for each row execute procedure check_contract_is_open();
+    for each row execute procedure check_contract_is_open ();
 
 drop function if exists close_contract_on_date (int, int, timestamp with time zone) cascade;
 create function close_contract_on_date (employee_id_ int, number_id_ int, finish_time_ timestamp with time zone) returns void as $$
@@ -60,12 +60,12 @@ drop function if exists close_contract_now (int, int) cascade;
 create function close_contract_now (employee_id_ int, number_id_ int) returns void as $$
     begin
         set transaction isolation level serializable read write;
-        perform close_contract_on_date (employee_id_, number_id_, now());
+        perform close_contract_on_date (employee_id_, number_id_, now ());
     end;
 $$ language plpgsql;
 
-drop function if exists check_contract_is_closed() cascade;
-create function check_contract_is_closed() returns trigger as $$
+drop function if exists check_contract_is_closed () cascade;
+create function check_contract_is_closed () returns trigger as $$
     begin
         if not exists (select * from contracts where employee_id = new.employee_id and number_id = new.number_id and finish_time is null) then
             raise exception 'there is no opened contract of employee % on number %', new.employee_id, new.number_id;
@@ -76,7 +76,7 @@ $$ language plpgsql;
 
 drop trigger if exists check_contract_is_closed on contracts cascade;
 create trigger check_contract_is_closed before update on contracts
-    for each row execute procedure check_contract_is_closed();
+    for each row execute procedure check_contract_is_closed ();
 
 drop function if exists change_tariff (int, int) cascade;
 create function change_tariff (number_id_ int, new_tariff_id int) returns int as $$
@@ -98,7 +98,8 @@ create function change_tariff (number_id_ int, new_tariff_id int) returns int as
                 select employee_id into employee_id_ from contracts where contract_id = contract_id_;
                 return open_contract_now (employee_id_, number_id_, new_tariff_id);
             else
-                raise exception 'tariff on number % is already %', number_id_, old_tariff_id;
+                raise notice 'tariff on number % is already %', number_id_, old_tariff_id;
+                return contract_id_;
             end if;
         end if;
     end;
