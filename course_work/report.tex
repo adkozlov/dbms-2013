@@ -5,7 +5,7 @@
 \DeclareSymbolFont{T2Aletters}{T2A}{cmr}{m}{it} 
 \usepackage[utf8]{inputenc}
 \usepackage[english,russian]{babel}
-\usepackage{graphicx,amsmath,color,listings}
+\usepackage{graphicx,amsmath,color,listings,float}
 \usepackage[margin=1in]{geometry}
 
 \title{Курсовая работа по предмету "Базы данных"}
@@ -64,5 +64,21 @@
 	\caption{Физическая модель}
 	\label{fig:pdm}
 \end{figure}
+
+\section{Исходный код}
+\lstset{
+	language=SQL,
+	frame=single,
+	showstringspaces=false,
+	breaklines,
+	numbers=left,
+	morekeywords={begin, end, function, references, boolean, localtimestamp, returns, serializable}
+}
+
+\subsection{Создание таблиц}
+\lstinputlisting{create_db.sql}
+
+\subsection{Создание представлений, функций и триггеров}
+\lstinputlisting{create_fnc.sql}
 
 \end{document}

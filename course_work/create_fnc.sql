@@ -1,3 +1,4 @@
+
 create or replace function get_employee_id (first_name_ varchar, last_name_ varchar) returns int as $$
     declare
         employee_id_ int;
