@@ -63,14 +63,15 @@ insert into tariff_service_costs (tariff_id, service_id, cost_per_unit) values
 ;
 
 start transaction isolation level serializable read write;
-	select new_employee('Андрей', 'Козлов');
+	select new_employee ('Андрей', 'Козлов');
+	select new_employee ('Аркадий', 'Шагал');
 
-	select new_number('+79219720152');
-	select open_contract_on_date(1, 1, 2, '2003-09-05');
-	select close_contract_on_date(1, 1, '2013-08-01');
+	select new_number ('+79219720152');
+	select open_contract_on_date (1, 1, 2, '2003-09-05');
+	select close_contract_on_date (1, 1, '2013-08-01');
 
-	select new_number('+79215575300');
-	select open_contract_now(1, 2, 1);
+	select new_number ('+79215575300');
+	select open_contract_now (1, 2, 1);
 commit;
 
 insert into operations (number_id, destination, operation_time, duration, service_id) values
@@ -78,12 +79,27 @@ insert into operations (number_id, destination, operation_time, duration, servic
 	(1, 'vk.com', '2013-01-01 23:00', 100, 9),
 	(2, '+79112318180', '2013-12-13 21:00', 90, 2),
 	(2, '+79213109677', '2013-12-13 23:00', 1, 6),
-	(2, '+79213109677', '2013-12-13 23:05', 1, 5)
+	(2, '+79219720152', '2013-12-13 23:05', 1, 5),
+	(2, '+79219720152', '2013-12-13 23:06', 1, 6)
 ;
 
 start transaction isolation level serializable read only;
-	select * from all_employee_contracts('Андрей', 'Козлов');
-	select * from open_employee_contracts('Андрей', 'Козлов');
+	select * from all_employee_contracts ('Андрей', 'Козлов');
+	select * from open_employee_contracts ('Андрей', 'Козлов');
 
-	select * from total_employee_charges('Андрей', 'Козлов');
+	select get_number_id ('+79219720152');
+	select get_tariff_id ('всё просто');
+
+	select total_employee_charges ('Андрей', 'Козлов');
+	select period_employee_charges ('Андрей', 'Козлов', '2013-12-01', '2014-01-01');
+	select total_employee_charges ('Аркадий', 'Шагал');
+
+	select * from period_employee_operations ('андрей', 'козлов', '2013-12-01', '2014-01-01');
+	select * from period_employee_work_operations ('андрей', 'козлов', '2013-12-01', '2014-01-01');
+	select * from period_employee_not_work_operations ('андрей', 'козлов', '2013-12-01', '2014-01-01');
+
+	select employee_charges_percent ('Андрей', 'Козлов');
+	select employee_charges_percent ('Аркадий', 'Шагал');
+
+	select * from spenders ();
 commit;
